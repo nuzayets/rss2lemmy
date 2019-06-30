@@ -15,6 +15,8 @@ Usage of ./rss2reddit:
         full path to agent file (default "/home/username/rss2reddit.agent")
   -feed string
         the feed URL (default "https://blog.golang.org/feed.atom?format=xml")
+  -posted string
+        writable file to store already-posted links (default "/home/username/rss2reddit.posted")
   -scope int
         posts published more than scope seconds ago will not be posted (default 3600)
   -subreddit string
