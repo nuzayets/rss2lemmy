@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/mmcdole/gofeed"
-	"github.com/turnage/graw/reddit"
+	"github.com/nuzayets/graw/reddit"
 )
 
-var agentFile, postedFile, titleSuffix, subreddit, feedURL string
+var agentFile, postedFile, titleSuffix, flairId, subreddit, feedURL string
 var scopeSecs int
 
 func homeDir() string {
@@ -81,6 +81,7 @@ func main() {
 	flag.StringVar(&agentFile, "agent", homeDir()+"/rss2reddit.agent", "full path to agent file")
 	flag.StringVar(&postedFile, "posted", homeDir()+"/rss2reddit.posted", "writable file to store already-posted links")
 	flag.StringVar(&titleSuffix, "suffix", "", "string to append to post title")
+	flag.StringVar(&flairId, "flair_id", "", "flair id to use")
 	flag.StringVar(&subreddit, "subreddit", "testingground4bots", "subreddit to post in")
 	flag.StringVar(&feedURL, "feed", "https://blog.golang.org/feed.atom?format=xml", "the feed URL")
 	flag.IntVar(&scopeSecs, "scope", 3600, "posts published more than scope seconds ago will not be posted")
@@ -91,9 +92,7 @@ func main() {
 	feed := getFeed(feedURL)
 
 	for _, item := range feed.Items {
-		// only items within past {scope}
 		if item.PublishedParsed.After(minPublishTime) {
-			// post
 			if bot == nil {
 				bot = getBot() // only get bot when we encounter an item so we don't login every cron
 			}
@@ -103,7 +102,7 @@ func main() {
 			fmt.Println("Link: " + item.Link)
 			if !isPosted(subreddit, item.Link) {
 				fmt.Println(fmt.Sprintf("Posting to %s...", subreddit))
-				err := bot.PostLink(subreddit, title, item.Link)
+				err := bot.PostLinkFlair(subreddit, title, item.Link, flairId)
 				if err != nil {
 					log.Println(err)
 				} else {
