@@ -12,7 +12,6 @@ import (
 
 	"github.com/mmcdole/gofeed"
 	"go.elara.ws/go-lemmy"
-	"go.elara.ws/go-lemmy/types"
 )
 
 type AgentFile struct {
@@ -61,7 +60,7 @@ func getClient(ctx context.Context) *lemmy.Client {
 		log.Fatal(err)
 	}
 
-	err = client.ClientLogin(ctx, types.Login{
+	err = client.ClientLogin(ctx, lemmy.Login{
 		UsernameOrEmail: agent.UsernameOrEmail,
 		Password:        agent.Password,
 	})
@@ -72,9 +71,9 @@ func getClient(ctx context.Context) *lemmy.Client {
 	return client
 }
 
-func getCommunityId(ctx context.Context, client *lemmy.Client, community string) int {
-	res, err := client.Community(ctx, types.GetCommunity{
-		Name: types.NewOptional(community),
+func getCommunityId(ctx context.Context, client *lemmy.Client, community string) int64 {
+	res, err := client.Community(ctx, lemmy.GetCommunity{
+		Name: lemmy.NewOptional(community),
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -130,7 +129,7 @@ func main() {
 	flag.Parse()
 
 	var client *lemmy.Client
-	var communityId int
+	var communityId int64
 	ctx := context.Background()
 	minPublishTime := time.Now().Add(time.Duration(-scopeSecs) * time.Second)
 	feed := getFeed(feedURL)
@@ -147,9 +146,9 @@ func main() {
 			fmt.Println("Link: " + item.Link)
 			if !isPosted(community, item.Link) {
 				fmt.Printf("Posting to %s...", community)
-				res, err := client.CreatePost(ctx, types.CreatePost{
+				res, err := client.CreatePost(ctx, lemmy.CreatePost{
 					Name:        title,
-					URL:         types.NewOptional(item.Link),
+					URL:         lemmy.NewOptional(item.Link),
 					CommunityID: communityId,
 				})
 
